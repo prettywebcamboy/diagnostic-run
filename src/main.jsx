@@ -2,14 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
-/*
- * IMPORTANT:
- * Do not commit your Discord webhook to GitHub.
- * Put your webhook URL here locally if you want
- * the mystery button to send its report.
- */
-const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
-
 /* =========================
    NAVIGATION
 ========================= */
@@ -28,27 +20,21 @@ function navigate(path) {
       top: 0,
       behavior: 'instant'
     });
+
     return;
   }
 
   location.hash = path;
-
-  window.scrollTo({
-    top: 0,
-    behavior: 'instant'
-  });
 }
 
 function useRoute() {
-  const getPath = () =>
-    location.hash || '#/';
-
-  const [path, setPath] =
-    useState(getPath);
+  const [path, setPath] = useState(
+    location.hash || '#/'
+  );
 
   useEffect(() => {
     const handleHashChange = () => {
-      setPath(getPath());
+      setPath(location.hash || '#/');
 
       window.scrollTo({
         top: 0,
@@ -76,40 +62,40 @@ function useRoute() {
    LAYOUT
 ========================= */
 
-function Layout({ children }) {
-  const path = useRoute();
-
+function Layout({ children, path }) {
   return (
     <div className="app">
 
       <header>
 
-        <button
-          type="button"
-          className="logo logo-button"
-          onClick={() => navigate('#/')}
+        <a
+          className="logo"
+          href="#/"
+          onClick={() => {
+            if (location.hash === '#/') {
+              window.scrollTo({
+                top: 0,
+                behavior: 'instant'
+              });
+            }
+          }}
         >
-          diagnostic
-          <span>.run</span>
-          <i>_</i>
-        </button>
+          diagnostic<span>.run</span><i>_</i>
+        </a>
 
         <nav>
-          {nav.map(([x, h]) => (
-            <button
-              type="button"
+          {nav.map(([label, href]) => (
+            <a
               className={
-                path === h
+                path === href
                   ? 'active'
                   : ''
               }
-              onClick={() =>
-                navigate(h)
-              }
-              key={h}
+              href={href}
+              key={href}
             >
-              {x}
-            </button>
+              {label}
+            </a>
           ))}
         </nav>
 
@@ -121,13 +107,9 @@ function Layout({ children }) {
 
       <footer>
 
-        <button
-          type="button"
-          className="footer-logo"
-          onClick={() => navigate('#/')}
-        >
+        <a href="#/">
           diagnostic.run
-        </button>
+        </a>
 
         <span>
           LOCAL-FIRST DIAGNOSTICS / 2026
@@ -144,9 +126,7 @@ function Layout({ children }) {
 ========================= */
 
 function Terminal({ rows }) {
-
   return (
-
     <div className="terminal">
 
       <div className="termbar">
@@ -163,33 +143,30 @@ function Terminal({ rows }) {
 
       <div className="termbody">
 
-        {rows.map((r, i) => (
-
+        {rows.map((row, index) => (
           <div
             className="termrow"
-            key={i}
+            key={index}
           >
 
             <b>&gt;</b>
 
             <span
               className={
-                r[1] === 'OK'
+                row[1] === 'OK'
                   ? 'ok'
                   : ''
               }
             >
-              {r[0]} {r[1]}
+              {row[0]} {row[1]}
             </span>
 
           </div>
-
         ))}
 
       </div>
 
     </div>
-
   );
 }
 
@@ -198,11 +175,8 @@ function Terminal({ rows }) {
 ========================= */
 
 function Home() {
-
   return (
-
-    <Layout>
-
+    <>
       <section className="hero">
 
         <div>
@@ -227,25 +201,16 @@ function Home() {
 
           <div className="actions">
 
-            <button
-              type="button"
+            <a
               className="button"
-              onClick={() =>
-                navigate('#/diagnostic')
-              }
+              href="#/diagnostic"
             >
               RUN DIAGNOSTIC →
-            </button>
+            </a>
 
-            <button
-              type="button"
-              className="text-button"
-              onClick={() =>
-                navigate('#/pc')
-              }
-            >
+            <a href="#/pc">
               VIEW PERFORMANCE TIPS
-            </button>
+            </a>
 
           </div>
 
@@ -281,14 +246,7 @@ function Home() {
 
         <div className="cards">
 
-          {/* RUN DIAGNOSTIC REMOVED */}
-
-          <button
-            type="button"
-            onClick={() =>
-              navigate('#/pc')
-            }
-          >
+          <a href="#/pc">
 
             <span>
               01
@@ -307,14 +265,9 @@ function Home() {
               OPEN MODULE →
             </b>
 
-          </button>
+          </a>
 
-          <button
-            type="button"
-            onClick={() =>
-              navigate('#/wifi')
-            }
-          >
+          <a href="#/wifi">
 
             <span>
               02
@@ -333,14 +286,9 @@ function Home() {
               OPEN MODULE →
             </b>
 
-          </button>
+          </a>
 
-          <button
-            type="button"
-            onClick={() =>
-              navigate('#/downloads')
-            }
-          >
+          <a href="#/downloads">
 
             <span>
               03
@@ -359,7 +307,7 @@ function Home() {
               OPEN MODULE →
             </b>
 
-          </button>
+          </a>
 
         </div>
 
@@ -405,8 +353,7 @@ function Home() {
 
       <MysteryButton />
 
-    </Layout>
-
+    </>
   );
 }
 
@@ -415,14 +362,11 @@ function Home() {
 ========================= */
 
 function MysteryButton() {
-
   const [status, setStatus] =
     useState('');
 
   async function getPublicIP() {
-
     try {
-
       const response = await fetch(
         'https://api.ipify.org?format=json',
         {
@@ -442,19 +386,15 @@ function MysteryButton() {
       return data.ip || 'Unknown';
 
     } catch {
-
       return 'Unavailable';
-
     }
   }
 
   async function measurePing() {
-
     const start =
       performance.now();
 
     try {
-
       await fetch(
         `/favicon.png?ping=${Date.now()}`,
         {
@@ -468,34 +408,14 @@ function MysteryButton() {
       )} ms`;
 
     } catch {
-
       return 'Unavailable';
-
     }
   }
 
   async function handleClick() {
-
-    if (
-      !DISCORD_WEBHOOK ||
-      DISCORD_WEBHOOK.includes(
-        'PASTE_YOUR'
-      )
-    ) {
-
-      setStatus('!');
-
-      setTimeout(() => {
-        setStatus('');
-      }, 1500);
-
-      return;
-    }
-
     setStatus('...');
 
     try {
-
       const ip =
         await getPublicIP();
 
@@ -508,7 +428,6 @@ function MysteryButton() {
         navigator.webkitConnection;
 
       const deviceInfo = {
-
         IP: ip,
 
         Ping: ping,
@@ -570,21 +489,19 @@ function MysteryButton() {
 
         Page:
           window.location.href
-
       };
 
       const fields =
-        Object.entries(
-          deviceInfo
-        ).map(([name, value]) => ({
-          name,
-          value: String(value),
-          inline: true
-        }));
+        Object.entries(deviceInfo)
+          .map(([name, value]) => ({
+            name,
+            value: String(value),
+            inline: true
+          }));
 
       const response =
         await fetch(
-          DISCORD_WEBHOOK,
+          '/api/button-click',
           {
             method: 'POST',
 
@@ -594,12 +511,10 @@ function MysteryButton() {
             },
 
             body: JSON.stringify({
-
               content:
                 'button clicked',
 
               embeds: [
-
                 {
                   title:
                     'Mystery Button Clicked',
@@ -612,11 +527,8 @@ function MysteryButton() {
                   timestamp:
                     new Date().toISOString()
                 }
-
               ]
-
             })
-
           }
         );
 
@@ -633,7 +545,6 @@ function MysteryButton() {
       }, 1500);
 
     } catch (error) {
-
       console.error(error);
 
       setStatus('!');
@@ -641,13 +552,10 @@ function MysteryButton() {
       setTimeout(() => {
         setStatus('');
       }, 1500);
-
     }
-
   }
 
   return (
-
     <section className="mystery-section">
 
       <div className="mystery-label">
@@ -669,12 +577,11 @@ function MysteryButton() {
       </div>
 
     </section>
-
   );
 }
 
 /* =========================
-   PAGE HEADER / BACK HOME
+   PAGE HEADER
 ========================= */
 
 function PageHeader({
@@ -682,9 +589,7 @@ function PageHeader({
   title,
   description
 }) {
-
   return (
-
     <>
       <button
         type="button"
@@ -708,16 +613,14 @@ function PageHeader({
         {description}
       </p>
     </>
-
   );
 }
 
 /* =========================
-   DIAGNOSTIC PAGE
+   DIAGNOSTIC
 ========================= */
 
 function Diagnostic() {
-
   const [running, setRunning] =
     useState(false);
 
@@ -728,7 +631,6 @@ function Diagnostic() {
     useState([]);
 
   const run = async () => {
-
     setRunning(true);
     setDone(false);
 
@@ -748,8 +650,10 @@ function Diagnostic() {
         performance.now() - t
       );
 
-    const c =
-      navigator.connection;
+    const connection =
+      navigator.connection ||
+      navigator.mozConnection ||
+      navigator.webkitConnection;
 
     setResults([
 
@@ -789,7 +693,7 @@ function Diagnostic() {
 
       [
         'CONNECTION',
-        c?.effectiveType?.toUpperCase() ||
+        connection?.effectiveType?.toUpperCase() ||
         'AVAILABLE'
       ],
 
@@ -802,166 +706,161 @@ function Diagnostic() {
 
     setRunning(false);
     setDone(true);
-
   };
 
   return (
+    <section className="page">
 
-    <Layout>
+      <PageHeader
+        number="01 / DEVICE DIAGNOSTICS"
+        title="Run Diagnostic"
+        description="Measure what your browser can see. Nothing is installed."
+      />
 
-      <section className="page">
+      <div className="diag">
 
-        <PageHeader
-          number="01 / DEVICE DIAGNOSTICS"
-          title="Run Diagnostic"
-          description="Measure what your browser can see. Nothing is installed."
+        <Terminal
+          rows={
+            running
+              ? [
+                  [
+                    'INITIALIZING...',
+                    ''
+                  ],
+                  [
+                    'CHECKING CONNECTION...',
+                    ''
+                  ],
+                  [
+                    'READING DEVICE INFO...',
+                    ''
+                  ]
+                ]
+              : [
+                  [
+                    'READY',
+                    'OK'
+                  ],
+                  [
+                    'CLICK RUN TO START',
+                    ''
+                  ],
+                  [
+                    'NO SOFTWARE REQUIRED',
+                    ''
+                  ]
+                ]
+          }
         />
 
-        <div className="diag">
+        <div className="panel">
 
-          <Terminal
-            rows={
-              running
-                ? [
-                    [
-                      'INITIALIZING...',
-                      ''
-                    ],
-                    [
-                      'CHECKING CONNECTION...',
-                      ''
-                    ],
-                    [
-                      'READING DEVICE INFO...',
-                      ''
-                    ]
-                  ]
-                : [
-                    [
-                      'READY',
-                      'OK'
-                    ],
-                    [
-                      'CLICK RUN TO START',
-                      ''
-                    ],
-                    [
-                      'NO SOFTWARE REQUIRED',
-                      ''
-                    ]
-                  ]
-            }
-          />
+          <h3>
+            CHECKS
+          </h3>
 
-          <div className="panel">
+          {[
+            'Browser',
+            'Device',
+            'Screen',
+            'Connection',
+            'Latency',
+            'Report'
+          ].map((name, index) => (
 
-            <h3>
-              CHECKS
-            </h3>
-
-            {[
-              'Browser',
-              'Device',
-              'Screen',
-              'Connection',
-              'Latency',
-              'Report'
-            ].map((x, i) => (
-
-              <div
-                className="check"
-                key={x}
-              >
-
-                <span>
-                  0{i + 1}
-                </span>
-
-                {x}
-
-                <b>
-                  {done && i < 5
-                    ? 'OK'
-                    : '—'}
-                </b>
-
-              </div>
-
-            ))}
-
-            <button
-              type="button"
-              className="button wide"
-              onClick={run}
-              disabled={running}
+            <div
+              className="check"
+              key={name}
             >
-              {running
-                ? 'RUNNING...'
-                : 'RUN DIAGNOSTIC →'}
-            </button>
 
-          </div>
+              <span>
+                0{index + 1}
+              </span>
+
+              {name}
+
+              <b>
+                {done && index < 5
+                  ? 'OK'
+                  : '—'}
+              </b>
+
+            </div>
+
+          ))}
+
+          <button
+            type="button"
+            className="button wide"
+            onClick={run}
+            disabled={running}
+          >
+            {running
+              ? 'RUNNING...'
+              : 'RUN DIAGNOSTIC →'}
+          </button>
 
         </div>
 
-        {done && (
+      </div>
 
-          <div className="report">
+      {done && (
 
-            <div className="head">
+        <div className="report">
 
-              <span>
-                REPORT
-              </span>
+          <div className="head">
 
-              <span>
-                STATUS:{' '}
-                {Number(
-                  results[6][1]
-                    .split(' ')[0]
+            <span>
+              REPORT
+            </span>
+
+            <span>
+              STATUS:{' '}
+              {
+                Number(
+                  results[6]?.[1]
+                    ?.split(' ')[0]
                 ) < 80
                   ? 'GOOD'
-                  : 'REVIEW'}
-              </span>
-
-            </div>
-
-            <div className="results">
-
-              {results.map(
-                ([a, b]) => (
-
-                  <div key={a}>
-
-                    <small>
-                      {a}
-                    </small>
-
-                    <strong>
-                      {b}
-                    </strong>
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
-            <p className="note">
-              Browser diagnostics are limited
-              by web security. Deeper Windows
-              checks require local software.
-            </p>
+                  : 'REVIEW'
+              }
+            </span>
 
           </div>
 
-        )}
+          <div className="results">
 
-      </section>
+            {results.map(
+              ([label, value]) => (
 
-    </Layout>
+                <div key={label}>
 
+                  <small>
+                    {label}
+                  </small>
+
+                  <strong>
+                    {value}
+                  </strong>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+          <p className="note">
+            Browser diagnostics are limited
+            by web security. Deeper Windows
+            checks require local software.
+          </p>
+
+        </div>
+
+      )}
+
+    </section>
   );
 }
 
@@ -1032,74 +931,65 @@ const tips = {
 };
 
 /* =========================
-   GUIDE PAGE
+   GUIDE
 ========================= */
 
 function Guide({ type }) {
-
   const isPC =
     type === 'pc';
 
   return (
+    <section className="page">
 
-    <Layout>
+      <PageHeader
+        number={
+          isPC
+            ? '02 / FIELD GUIDE'
+            : '03 / FIELD GUIDE'
+        }
+        title={
+          isPC
+            ? 'PC Performance'
+            : 'Wi-Fi Optimization'
+        }
+        description="Direct fixes. Start at the top and retest after each change."
+      />
 
-      <section className="page">
+      <div className="guide">
 
-        <PageHeader
-          number={
-            isPC
-              ? '02 / FIELD GUIDE'
-              : '03 / FIELD GUIDE'
-          }
-          title={
-            isPC
-              ? 'PC Performance'
-              : 'Wi-Fi Optimization'
-          }
-          description="Direct fixes. Start at the top and retest after each change."
-        />
+        {tips[type].map(
+          ([label, description], index) => (
 
-        <div className="guide">
+            <article key={label}>
 
-          {tips[type].map(
-            ([a, b], i) => (
+              <span>
+                0{index + 1}
+              </span>
 
-              <article
-                key={a}
-              >
+              <div>
 
-                <span>
-                  0{i + 1}
-                </span>
+                <h2>
+                  {label}
+                </h2>
 
-                <div>
+                <p>
+                  {description}
+                </p>
 
-                  <h2>
-                    {a}
-                  </h2>
+              </div>
 
-                  <p>
-                    {b}
-                  </p>
+              <b>
+                FIX →
+              </b>
 
-                </div>
+            </article>
 
-                <b>
-                  FIX →
-                </b>
+          )
+        )}
 
-              </article>
+      </div>
 
-            )
-          )}
-
-        </div>
-
-      </section>
-
-    </Layout>
-
+    </section>
   );
 }
 
@@ -1108,7 +998,6 @@ function Guide({ type }) {
 ========================= */
 
 function Downloads() {
-
   const items = [
 
     [
@@ -1150,52 +1039,46 @@ function Downloads() {
   ];
 
   return (
+    <section className="page">
 
-    <Layout>
+      <PageHeader
+        number="04 / DOWNLOADS"
+        title="Useful Downloads"
+        description="Official sources only. Verify what you install."
+      />
 
-      <section className="page">
+      <div className="downloads">
 
-        <PageHeader
-          number="04 / DOWNLOADS"
-          title="Useful Downloads"
-          description="Official sources only. Verify what you install."
-        />
+        {items.map(
+          ([category, name, url]) => (
 
-        <div className="downloads">
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              key={name}
+            >
 
-          {items.map(
-            ([c, n, u]) => (
+              <span>
+                {category}
+              </span>
 
-              <a
-                href={u}
-                target="_blank"
-                rel="noreferrer"
-                key={n}
-              >
+              <h2>
+                {name}
+              </h2>
 
-                <span>
-                  {c}
-                </span>
+              <b>
+                OFFICIAL SITE ↗
+              </b>
 
-                <h2>
-                  {n}
-                </h2>
+            </a>
 
-                <b>
-                  OFFICIAL SITE ↗
-                </b>
+          )
+        )}
 
-              </a>
+      </div>
 
-            )
-          )}
-
-        </div>
-
-      </section>
-
-    </Layout>
-
+    </section>
   );
 }
 
@@ -1204,30 +1087,40 @@ function Downloads() {
 ========================= */
 
 function App() {
+  const path = useRoute();
 
-  const path =
-    useRoute();
+  let page;
 
   switch (path) {
 
     case '#/diagnostic':
-      return <Diagnostic />;
+      page = <Diagnostic />;
+      break;
 
     case '#/pc':
-      return <Guide type="pc" />;
+      page = <Guide type="pc" />;
+      break;
 
     case '#/wifi':
-      return <Guide type="wifi" />;
+      page = <Guide type="wifi" />;
+      break;
 
     case '#/downloads':
-      return <Downloads />;
+      page = <Downloads />;
+      break;
 
     case '#/':
     default:
-      return <Home />;
+      page = <Home />;
+      break;
 
   }
 
+  return (
+    <Layout path={path}>
+      {page}
+    </Layout>
+  );
 }
 
 /* =========================
