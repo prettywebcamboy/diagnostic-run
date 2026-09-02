@@ -1,13 +1,21 @@
 export async function onRequest(context) {
-  const method = context.request.method;
+  const { request, env } = context;
 
   /*
-   * GET
+   * ==========================================
+   * GET — API TEST
+   * ==========================================
    *
-   * Allows you to test whether the Cloudflare
-   * Pages Function is actually deployed.
+   * Opening /api/button-click in a browser
+   * should return:
+   *
+   * {
+   *   "ok": true,
+   *   "message": "Mystery button API is online"
+   * }
    */
-  if (method === 'GET') {
+
+  if (request.method === 'GET') {
     return new Response(
       JSON.stringify({
         ok: true,
@@ -23,156 +31,187 @@ export async function onRequest(context) {
     );
   }
 
+
   /*
-   * Only POST is used by the mystery button.
+   * ==========================================
+   * ONLY ALLOW POST FOR THE BUTTON
+   * ==========================================
    */
-  if (method !== 'POST') {
+
+  if (request.method !== 'POST') {
     return new Response(
-      'Method Not Allowed',
+      JSON.stringify({
+        ok: false,
+        error: 'Method not allowed'
+      }),
       {
         status: 405,
         headers: {
-          Allow: 'GET, POST'
+          'Content-Type': 'application/json',
+          'Allow': 'GET, POST'
         }
       }
     );
   }
 
+
   /*
-   * The Discord webhook is stored as a
-   * Cloudflare secret.
+   * ==========================================
+   * GET DISCORD WEBHOOK FROM CLOUDFLARE
+   * ==========================================
    *
-   * DO NOT put the webhook URL here.
+   * The webhook URL must NOT be written here.
+   *
+   * Cloudflare variable:
+   *
+   * DISCORD_WEBHOOK_URL
    */
-  const webhook =
-    context.env.DISCORD_WEBHOOK_URL;
+
+  const webhook = env.DISCORD_WEBHOOK_URL;
 
   if (!webhook) {
+    console.error(
+      'DISCORD_WEBHOOK_URL is not configured'
+    );
+
     return new Response(
       JSON.stringify({
         ok: false,
         error:
-          'DISCORD_WEBHOOK_URL is not configured'
+          'DISCORD_WEBHOOK_URL is missing from Cloudflare'
       }),
       {
         status: 500,
         headers: {
-          'Content-Type':
-            'application/json'
+          'Content-Type': 'application/json'
         }
       }
     );
   }
 
+
+  /*
+   * ==========================================
+   * READ INFORMATION FROM THE WEBSITE
+   * ==========================================
+   */
+
+  let body;
+
   try {
+    body = await request.json();
+  } catch (error) {
+    console.error(
+      'Could not read request JSON:',
+      error
+    );
 
-    const body =
-      await context.request.json();
-
-    const deviceInfo =
-      body?.deviceInfo || {};
-
-    /*
-     * Cloudflare gives us the visitor's
-     * public IP address.
-     */
-    const ip =
-      context.request.headers.get(
-        'CF-Connecting-IP'
-      ) ||
-      'Unavailable';
-
-    const fields = [
-
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: 'Invalid JSON request'
+      }),
       {
-        name: 'IP Address',
-        value: String(ip),
-        inline: true
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
+    );
+  }
 
-    ];
 
-    /*
-     * Add browser/device information.
-     */
-    for (
-      const [name, value]
-      of Object.entries(deviceInfo)
-    ) {
+  const deviceInfo = body?.deviceInfo || {};
 
-      fields.push({
-        name:
-          String(name).slice(0, 256),
 
-        value:
-          String(value).slice(0, 1024),
+  /*
+   * ==========================================
+   * GET VISITOR IP FROM CLOUDFLARE
+   * ==========================================
+   */
 
-        inline: true
-      });
+  const ip =
+    request.headers.get('CF-Connecting-IP') ||
+    'Unavailable';
 
+
+  /*
+   * ==========================================
+   * BUILD DISCORD EMBED
+   * ==========================================
+   */
+
+  const fields = [
+    {
+      name: 'IP Address',
+      value: String(ip),
+      inline: true
     }
+  ];
+
+
+  for (const [name, value] of Object.entries(deviceInfo)) {
+    fields.push({
+      name: String(name).slice(0, 256),
+      value: String(value).slice(0, 1024),
+      inline: true
+    });
+  }
+
+
+  const discordPayload = {
+    content: 'button clicked',
+
+    embeds: [
+      {
+        title: '🔴 Mystery Button Clicked',
+
+        description:
+          'Public browser/device information collected from diagnostic.run',
+
+        fields: fields.slice(0, 25),
+
+        timestamp: new Date().toISOString()
+      }
+    ]
+  };
+
+
+  /*
+   * ==========================================
+   * SEND TO DISCORD
+   * ==========================================
+   */
+
+  try {
+    const discordResponse = await fetch(
+      webhook,
+      {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify(
+          discordPayload
+        )
+      }
+    );
+
 
     /*
-     * Discord allows a maximum of
-     * 25 embed fields.
+     * ========================================
+     * DISCORD ERROR
+     * ========================================
      */
-    const discordPayload = {
 
-      content:
-        'button clicked',
-
-      embeds: [
-
-        {
-          title:
-            '🔴 Mystery Button Clicked',
-
-          description:
-            'Public browser/device information collected from diagnostic.run',
-
-          fields:
-            fields.slice(0, 25),
-
-          timestamp:
-            new Date().toISOString()
-        }
-
-      ]
-
-    };
-
-    /*
-     * Send the message to Discord.
-     */
-    const discordResponse =
-      await fetch(
-        webhook,
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type':
-              'application/json'
-          },
-
-          body:
-            JSON.stringify(
-              discordPayload
-            )
-        }
-      );
-
-    /*
-     * Discord webhooks normally return
-     * 204 when successful.
-     */
     if (!discordResponse.ok) {
-
       const errorText =
         await discordResponse.text();
 
       console.error(
-        'Discord webhook error:',
+        'Discord webhook failed:',
         discordResponse.status,
         errorText
       );
@@ -180,16 +219,11 @@ export async function onRequest(context) {
       return new Response(
         JSON.stringify({
           ok: false,
-
           error:
-            `Discord returned ${discordResponse.status}`,
-
-          details:
-            errorText.slice(0, 500)
+            `Discord returned ${discordResponse.status}`
         }),
         {
           status: 502,
-
           headers: {
             'Content-Type':
               'application/json'
@@ -198,13 +232,24 @@ export async function onRequest(context) {
       );
     }
 
+
+    /*
+     * ========================================
+     * SUCCESS
+     * ========================================
+     */
+
+    console.log(
+      'Mystery button successfully sent to Discord'
+    );
+
     return new Response(
       JSON.stringify({
-        ok: true
+        ok: true,
+        message: 'Sent to Discord'
       }),
       {
         status: 200,
-
         headers: {
           'Content-Type':
             'application/json',
@@ -218,7 +263,7 @@ export async function onRequest(context) {
   } catch (error) {
 
     console.error(
-      'Mystery button error:',
+      'Discord request error:',
       error
     );
 
@@ -226,11 +271,10 @@ export async function onRequest(context) {
       JSON.stringify({
         ok: false,
         error:
-          'Invalid request'
+          'Could not contact Discord'
       }),
       {
-        status: 400,
-
+        status: 502,
         headers: {
           'Content-Type':
             'application/json'
