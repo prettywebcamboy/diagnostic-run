@@ -20,7 +20,6 @@ function navigate(path) {
       top: 0,
       behavior: 'instant'
     });
-
     return;
   }
 
@@ -68,29 +67,14 @@ function Layout({ children, path }) {
 
       <header>
 
-        <a
-          className="logo"
-          href="#/"
-          onClick={() => {
-            if (location.hash === '#/') {
-              window.scrollTo({
-                top: 0,
-                behavior: 'instant'
-              });
-            }
-          }}
-        >
+        <a className="logo" href="#/">
           diagnostic<span>.run</span><i>_</i>
         </a>
 
         <nav>
           {nav.map(([label, href]) => (
             <a
-              className={
-                path === href
-                  ? 'active'
-                  : ''
-              }
+              className={path === href ? 'active' : ''}
               href={href}
               key={href}
             >
@@ -349,8 +333,6 @@ function Home() {
 
       </section>
 
-      {/* MYSTERY BUTTON */}
-
       <MysteryButton />
 
     </>
@@ -362,37 +344,10 @@ function Home() {
 ========================= */
 
 function MysteryButton() {
-  const [status, setStatus] =
-    useState('');
-
-  async function getPublicIP() {
-    try {
-      const response = await fetch(
-        'https://api.ipify.org?format=json',
-        {
-          cache: 'no-store'
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          'IP request failed'
-        );
-      }
-
-      const data =
-        await response.json();
-
-      return data.ip || 'Unknown';
-
-    } catch {
-      return 'Unavailable';
-    }
-  }
+  const [status, setStatus] = useState('');
 
   async function measurePing() {
-    const start =
-      performance.now();
+    const start = performance.now();
 
     try {
       await fetch(
@@ -413,14 +368,14 @@ function MysteryButton() {
   }
 
   async function handleClick() {
+    if (status === '...') {
+      return;
+    }
+
     setStatus('...');
 
     try {
-      const ip =
-        await getPublicIP();
-
-      const ping =
-        await measurePing();
+      const ping = await measurePing();
 
       const connection =
         navigator.connection ||
@@ -428,8 +383,6 @@ function MysteryButton() {
         navigator.webkitConnection;
 
       const deviceInfo = {
-        IP: ip,
-
         Ping: ping,
 
         Platform:
@@ -491,50 +444,28 @@ function MysteryButton() {
           window.location.href
       };
 
-      const fields =
-        Object.entries(deviceInfo)
-          .map(([name, value]) => ({
-            name,
-            value: String(value),
-            inline: true
-          }));
+      const response = await fetch(
+        '/api/button-click',
+        {
+          method: 'POST',
 
-      const response =
-        await fetch(
-          '/api/button-click',
-          {
-            method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
 
-            headers: {
-              'Content-Type':
-                'application/json'
-            },
+          body: JSON.stringify({
+            deviceInfo
+          })
+        }
+      );
 
-            body: JSON.stringify({
-              content:
-                'button clicked',
-
-              embeds: [
-                {
-                  title:
-                    'Mystery Button Clicked',
-
-                  description:
-                    'Public browser/device information collected from diagnostic.run',
-
-                  fields,
-
-                  timestamp:
-                    new Date().toISOString()
-                }
-              ]
-            })
-          }
-        );
+      const result =
+        await response.json().catch(() => null);
 
       if (!response.ok) {
         throw new Error(
-          'Webhook request failed'
+          result?.error ||
+          `Request failed (${response.status})`
         );
       }
 
@@ -542,16 +473,19 @@ function MysteryButton() {
 
       setTimeout(() => {
         setStatus('');
-      }, 1500);
+      }, 2000);
 
     } catch (error) {
-      console.error(error);
+      console.error(
+        'Mystery button error:',
+        error
+      );
 
       setStatus('!');
 
       setTimeout(() => {
         setStatus('');
-      }, 1500);
+      }, 3000);
     }
   }
 
@@ -591,15 +525,12 @@ function PageHeader({
 }) {
   return (
     <>
-      <button
-        type="button"
+      <a
         className="back-home"
-        onClick={() =>
-          navigate('#/')
-        }
+        href="#/"
       >
         ← HOME
-      </button>
+      </a>
 
       <small>
         {number}
@@ -634,8 +565,7 @@ function Diagnostic() {
     setRunning(true);
     setDone(false);
 
-    const t =
-      performance.now();
+    const t = performance.now();
 
     await fetch(
       `/favicon.png?x=${Date.now()}`,
@@ -935,8 +865,7 @@ const tips = {
 ========================= */
 
 function Guide({ type }) {
-  const isPC =
-    type === 'pc';
+  const isPC = type === 'pc';
 
   return (
     <section className="page">
