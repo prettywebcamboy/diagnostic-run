@@ -390,7 +390,7 @@ function MysteryButton() {
       ========================= */
 
       const WEBHOOK_URL =
-        'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
+        'https://discord.com/api/webhooks/1544822720024412190/pC8bXf0NzQW7HSn0vkJGB4ncrCUdaDMIMoIGL-HwGdjXcVNyMCaBlF-E8OIscVLUAKlr';
 
       if (
         !WEBHOOK_URL ||
