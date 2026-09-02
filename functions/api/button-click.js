@@ -42,7 +42,7 @@ export async function onRequest(context) {
   const webhook =
     'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
 
-  if (!webhook || webhook === 'YOUR_NEW_DISCORD_WEBHOOK_HERE') {
+  if (!webhook || webhook === 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd') {
     return new Response(
       JSON.stringify({
         ok: false,
