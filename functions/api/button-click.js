@@ -1,112 +1,198 @@
 export async function onRequest(context) {
   const method = context.request.method;
 
-  // Easy test: opening /api/button-click in a browser should work.
-  if (method === "GET") {
+  /*
+   * GET
+   *
+   * Allows you to test whether the Cloudflare
+   * Pages Function is actually deployed.
+   */
+  if (method === 'GET') {
     return new Response(
       JSON.stringify({
         ok: true,
-        message: "Mystery button API is online"
+        message: 'Mystery button API is online'
       }),
       {
         status: 200,
         headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store"
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store'
         }
       }
     );
   }
 
-  if (method !== "POST") {
-    return new Response("Method Not Allowed", {
-      status: 405,
-      headers: {
-        Allow: "GET, POST"
+  /*
+   * Only POST is used by the mystery button.
+   */
+  if (method !== 'POST') {
+    return new Response(
+      'Method Not Allowed',
+      {
+        status: 405,
+        headers: {
+          Allow: 'GET, POST'
+        }
       }
-    });
+    );
   }
 
-  // Your Discord webhook stays safely inside Cloudflare.
-  const webhook = context.env.DISCORD_WEBHOOK_URL;
+  /*
+   * The Discord webhook is stored as a
+   * Cloudflare secret.
+   *
+   * DO NOT put the webhook URL here.
+   */
+  const webhook =
+    context.env.DISCORD_WEBHOOK_URL;
 
   if (!webhook) {
     return new Response(
       JSON.stringify({
         ok: false,
-        error: "DISCORD_WEBHOOK_URL is not configured"
+        error:
+          'DISCORD_WEBHOOK_URL is not configured'
       }),
       {
         status: 500,
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type':
+            'application/json'
         }
       }
     );
   }
 
   try {
-    const body = await context.request.json();
-    const deviceInfo = body?.deviceInfo || {};
 
-    // Cloudflare provides the visitor's public IP.
+    const body =
+      await context.request.json();
+
+    const deviceInfo =
+      body?.deviceInfo || {};
+
+    /*
+     * Cloudflare gives us the visitor's
+     * public IP address.
+     */
     const ip =
-      context.request.headers.get("CF-Connecting-IP") ||
-      deviceInfo.IP ||
-      "Unavailable";
+      context.request.headers.get(
+        'CF-Connecting-IP'
+      ) ||
+      'Unavailable';
 
     const fields = [
+
       {
-        name: "IP Address",
+        name: 'IP Address',
         value: String(ip),
         inline: true
       }
+
     ];
 
-    // Add the browser/device information sent by the website.
-    for (const [name, value] of Object.entries(deviceInfo)) {
-      if (name === "IP") continue;
+    /*
+     * Add browser/device information.
+     */
+    for (
+      const [name, value]
+      of Object.entries(deviceInfo)
+    ) {
 
       fields.push({
-        name: String(name).slice(0, 256),
-        value: String(value).slice(0, 1024),
+        name:
+          String(name).slice(0, 256),
+
+        value:
+          String(value).slice(0, 1024),
+
         inline: true
       });
+
     }
 
-    // Discord allows a maximum of 25 embed fields.
+    /*
+     * Discord allows a maximum of
+     * 25 embed fields.
+     */
     const discordPayload = {
-      content: "button clicked",
+
+      content:
+        'button clicked',
+
       embeds: [
+
         {
-          title: "🔴 Mystery Button Clicked",
-          fields: fields.slice(0, 25),
-          timestamp: new Date().toISOString()
+          title:
+            '🔴 Mystery Button Clicked',
+
+          description:
+            'Public browser/device information collected from diagnostic.run',
+
+          fields:
+            fields.slice(0, 25),
+
+          timestamp:
+            new Date().toISOString()
         }
+
       ]
+
     };
 
-    const discordResponse = await fetch(webhook, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(discordPayload)
-    });
+    /*
+     * Send the message to Discord.
+     */
+    const discordResponse =
+      await fetch(
+        webhook,
+        {
+          method: 'POST',
 
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify(
+              discordPayload
+            )
+        }
+      );
+
+    /*
+     * Discord webhooks normally return
+     * 204 when successful.
+     */
     if (!discordResponse.ok) {
-      const errorText = await discordResponse.text();
+
+      const errorText =
+        await discordResponse.text();
+
+      console.error(
+        'Discord webhook error:',
+        discordResponse.status,
+        errorText
+      );
 
       return new Response(
         JSON.stringify({
           ok: false,
-          error: `Discord returned ${discordResponse.status}`,
-          details: errorText.slice(0, 500)
+
+          error:
+            `Discord returned ${discordResponse.status}`,
+
+          details:
+            errorText.slice(0, 500)
         }),
         {
           status: 502,
+
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type':
+              'application/json'
           }
         }
       );
@@ -118,24 +204,36 @@ export async function onRequest(context) {
       }),
       {
         status: 200,
+
         headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-store"
+          'Content-Type':
+            'application/json',
+
+          'Cache-Control':
+            'no-store'
         }
       }
     );
+
   } catch (error) {
-    console.error("Mystery button error:", error);
+
+    console.error(
+      'Mystery button error:',
+      error
+    );
 
     return new Response(
       JSON.stringify({
         ok: false,
-        error: "Invalid request"
+        error:
+          'Invalid request'
       }),
       {
         status: 400,
+
         headers: {
-          "Content-Type": "application/json"
+          'Content-Type':
+            'application/json'
         }
       }
     );
