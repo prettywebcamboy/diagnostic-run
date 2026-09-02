@@ -8,7 +8,7 @@ import './styles.css';
  * Put your webhook URL here locally if you want
  * the mystery button to send its report.
  */
-const DISCORD_WEBHOOK = 'PASTE_YOUR_DISCORD_WEBHOOK_HERE';
+const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
 
 /* =========================
    NAVIGATION
