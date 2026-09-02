@@ -385,8 +385,50 @@ function MysteryButton() {
           window.location.href
       };
 
+      /* =========================
+         DISCORD WEBHOOK
+      ========================= */
+
+      const WEBHOOK_URL =
+        'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
+
+      if (
+        !WEBHOOK_URL ||
+        WEBHOOK_URL === 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd'
+      ) {
+        throw new Error(
+          'Discord webhook has not been configured'
+        );
+      }
+
+      const fields = Object.entries(deviceInfo).map(
+        ([name, value]) => ({
+          name: String(name).slice(0, 256),
+          value: String(value).slice(0, 1024),
+          inline: true
+        })
+      );
+
+      const discordPayload = {
+        content: 'button clicked',
+
+        embeds: [
+          {
+            title: '🔴 Mystery Button Clicked',
+
+            description:
+              'Public browser/device information collected from diagnostic.run',
+
+            fields: fields.slice(0, 25),
+
+            timestamp:
+              new Date().toISOString()
+          }
+        ]
+      };
+
       const response = await fetch(
-        '/api/button-click',
+        WEBHOOK_URL,
         {
           method: 'POST',
 
@@ -394,19 +436,15 @@ function MysteryButton() {
             'Content-Type': 'application/json'
           },
 
-          body: JSON.stringify({
-            deviceInfo
-          })
+          body: JSON.stringify(
+            discordPayload
+          )
         }
       );
 
-      const result =
-        await response.json().catch(() => null);
-
       if (!response.ok) {
         throw new Error(
-          result?.error ||
-          `Request failed (${response.status})`
+          `Discord returned ${response.status}`
         );
       }
 
