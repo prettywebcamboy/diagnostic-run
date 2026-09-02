@@ -941,3 +941,135 @@ button {
     white-space: normal;
   }
 }
+/* =========================
+   SPA NAVIGATION BUTTONS
+========================= */
+
+.logo-button {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+nav button {
+  border: none;
+  background: transparent;
+  color: #9ca59d;
+  padding: 0;
+  margin: 0;
+
+  font:
+    500 12px
+    'JetBrains Mono';
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease;
+}
+
+nav button:hover,
+nav button.active {
+  color: var(--g);
+}
+
+.cards button {
+  appearance: none;
+
+  width: 100%;
+
+  padding: 28px 22px;
+
+  border: none;
+  border-right: 1px solid var(--l);
+  border-bottom: 1px solid var(--l);
+
+  min-height: 240px;
+
+  background: transparent;
+
+  color: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  font: inherit;
+}
+
+.cards button:hover {
+  background: #091009;
+}
+
+.text-button {
+  appearance: none;
+
+  border: none;
+  background: transparent;
+
+  padding: 0;
+
+  color: #aab2aa;
+
+  font:
+    600 11px
+    'JetBrains Mono';
+
+  cursor: pointer;
+}
+
+.text-button:hover {
+  color: var(--g);
+}
+
+.footer-logo {
+  border: none;
+  background: transparent;
+
+  padding: 0;
+
+  color: var(--g);
+
+  font:
+    10px
+    'JetBrains Mono';
+
+  cursor: pointer;
+}
+
+.footer-logo:hover {
+  color: #fff;
+}
+
+/* HOME BUTTON ON INTERNAL PAGES */
+
+.back-home {
+  appearance: none;
+
+  border: 1px solid var(--l);
+
+  background: transparent;
+
+  color: #7f897f;
+
+  padding: 9px 12px;
+
+  margin-bottom: 30px;
+
+  font:
+    600 10px
+    'JetBrains Mono';
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.back-home:hover {
+  color: var(--g);
+  border-color: var(--g);
+}
