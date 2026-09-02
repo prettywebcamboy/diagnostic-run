@@ -394,7 +394,7 @@ function MysteryButton() {
 
       if (
         !WEBHOOK_URL ||
-        WEBHOOK_URL === 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd'
+        WEBHOOK_URL === 'PASTE_YOUR_NEW_DISCORD_WEBHOOK_HERE'
       ) {
         throw new Error(
           'Discord webhook has not been configured'
