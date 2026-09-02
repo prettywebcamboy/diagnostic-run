@@ -12,12 +12,30 @@
   box-sizing: border-box;
 }
 
+html {
+  background: #050705;
+}
+
 body {
   margin: 0;
+  background: #050705;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 .app {
   min-height: 100vh;
+
   background:
     radial-gradient(
       circle at 70% 5%,
@@ -27,12 +45,9 @@ body {
     #050705;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-/* HEADER */
+/* =========================
+   HEADER
+========================= */
 
 header {
   height: 72px;
@@ -78,6 +93,7 @@ footer {
 
 .logo i {
   font-style: normal;
+
   animation:
     blink 1s steps(1) infinite;
 }
@@ -105,7 +121,9 @@ main {
   margin: auto;
 }
 
-/* HERO */
+/* =========================
+   HERO
+========================= */
 
 .hero {
   min-height: 650px;
@@ -113,7 +131,9 @@ main {
   padding: 80px 5vw;
 
   display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
+
+  grid-template-columns:
+    1.1fr 0.9fr;
 
   gap: 7vw;
 
@@ -147,6 +167,7 @@ main {
 
 .actions {
   display: flex;
+
   gap: 28px;
 
   align-items: center;
@@ -160,7 +181,21 @@ main {
   color: #aab2aa;
 }
 
+.actions a:not(.button) {
+  color: #aab2aa;
+}
+
+.actions a:not(.button):hover {
+  color: var(--g);
+}
+
+/* =========================
+   BUTTON
+========================= */
+
 .button {
+  display: inline-block;
+
   border: 1px solid var(--g);
 
   background: var(--g);
@@ -176,11 +211,17 @@ main {
   cursor: pointer;
 }
 
+.button:hover {
+  background: #7aff8c;
+}
+
 .button:disabled {
   opacity: 0.5;
 }
 
-/* TERMINAL */
+/* =========================
+   TERMINAL
+========================= */
 
 .terminal {
   border: 1px solid #344034;
@@ -211,7 +252,8 @@ main {
 .termrow {
   display: grid;
 
-  grid-template-columns: 25px 1fr;
+  grid-template-columns:
+    25px 1fr;
 
   font:
     13px/2
@@ -222,7 +264,9 @@ main {
   color: var(--g);
 }
 
-/* SERVICES */
+/* =========================
+   SERVICES
+========================= */
 
 .section {
   padding:
@@ -231,7 +275,8 @@ main {
 }
 
 .head {
-  border-top: 1px dashed var(--l);
+  border-top:
+    1px dashed var(--l);
 
   padding: 14px 0;
 
@@ -248,22 +293,27 @@ main {
   display: grid;
 
   grid-template-columns:
-    repeat(4, 1fr);
+    repeat(3, 1fr);
 
-  border-left: 1px solid var(--l);
+  border-left:
+    1px solid var(--l);
 }
 
 .cards a {
   padding: 28px 22px;
 
-  border-right: 1px solid var(--l);
-  border-bottom: 1px solid var(--l);
+  border-right:
+    1px solid var(--l);
+
+  border-bottom:
+    1px solid var(--l);
 
   min-height: 240px;
+
+  background: transparent;
 }
 
-.cards a:hover,
-.downloads a:hover {
+.cards a:hover {
   background: #091009;
 }
 
@@ -294,7 +344,9 @@ main {
   margin-top: 35px;
 }
 
-/* QUICK WINS */
+/* =========================
+   QUICK WINS
+========================= */
 
 .quick {
   display: grid;
@@ -330,9 +382,9 @@ main {
   margin-top: 10px;
 }
 
-/* =================================
+/* =========================
    MYSTERY BUTTON
-================================= */
+========================= */
 
 .mystery-section {
   width: 100%;
@@ -352,8 +404,6 @@ main {
   text-align: center;
 }
 
-/* DARK RED TEXT ABOVE BUTTON */
-
 .mystery-label {
   margin-bottom: 28px;
 
@@ -366,8 +416,6 @@ main {
 
   letter-spacing: 0.02em;
 }
-
-/* GREY OUTER CIRCLE */
 
 .mystery-ring {
   width: 236px;
@@ -389,11 +437,11 @@ main {
     inset 0 0 25px rgba(0, 0, 0, 0.7);
 }
 
-/* BIG RED INNER CIRCLE */
-
 .mystery-button {
   width: 190px;
   height: 190px;
+
+  padding: 0;
 
   border: none;
 
@@ -448,7 +496,9 @@ main {
   opacity: 0.7;
 }
 
-/* DIAGNOSTIC PAGE */
+/* =========================
+   INTERNAL PAGES
+========================= */
 
 .page {
   padding:
@@ -467,6 +517,46 @@ main {
     10px;
 }
 
+/* HOME BUTTON */
+
+.back-home {
+  appearance: none;
+
+  border:
+    1px solid var(--l);
+
+  background: transparent;
+
+  color: #7f897f;
+
+  padding:
+    9px 12px;
+
+  margin-bottom:
+    30px;
+
+  font:
+    600 10px
+    'JetBrains Mono';
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.back-home:hover {
+  color: var(--g);
+
+  border-color:
+    var(--g);
+}
+
+/* =========================
+   DIAGNOSTIC
+========================= */
+
 .diag {
   display: grid;
 
@@ -479,7 +569,8 @@ main {
 }
 
 .panel {
-  border: 1px solid var(--l);
+  border:
+    1px solid var(--l);
 
   padding: 24px;
 }
@@ -527,7 +618,8 @@ main {
   grid-template-columns:
     repeat(4, 1fr);
 
-  border: 1px solid var(--l);
+  border:
+    1px solid var(--l);
 }
 
 .results div {
@@ -560,7 +652,9 @@ main {
   font-size: 12px;
 }
 
-/* GUIDE */
+/* =========================
+   GUIDE
+========================= */
 
 .guide {
   border-top:
@@ -616,7 +710,9 @@ main {
   text-align: right;
 }
 
-/* DOWNLOADS */
+/* =========================
+   DOWNLOADS
+========================= */
 
 .downloads {
   display: grid;
@@ -645,6 +741,10 @@ main {
   min-height: 180px;
 }
 
+.downloads a:hover {
+  background: #091009;
+}
+
 .downloads span,
 .downloads b {
   font:
@@ -654,7 +754,9 @@ main {
   color: var(--g);
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER
+========================= */
 
 footer {
   border-top:
@@ -672,7 +774,17 @@ footer {
     'JetBrains Mono';
 }
 
-/* ANIMATION */
+footer a {
+  color: var(--g);
+}
+
+footer a:hover {
+  color: #ffffff;
+}
+
+/* =========================
+   ANIMATION
+========================= */
 
 @keyframes blink {
   50% {
@@ -680,7 +792,9 @@ footer {
   }
 }
 
-/* TABLET */
+/* =========================
+   TABLET
+========================= */
 
 @media (max-width: 850px) {
 
@@ -690,7 +804,8 @@ footer {
 
   .hero,
   .diag {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
   .cards,
@@ -700,7 +815,8 @@ footer {
   }
 
   .quick {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
   .results {
@@ -709,23 +825,29 @@ footer {
   }
 }
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 
 @media (max-width: 520px) {
 
   .cards,
   .downloads {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
   .hero h1 {
-    font-size: 50px;
+    font-size:
+      50px;
   }
 
   .actions {
-    flex-direction: column;
+    flex-direction:
+      column;
 
-    align-items: flex-start;
+    align-items:
+      flex-start;
   }
 
   .guide article {
@@ -744,332 +866,26 @@ footer {
   }
 
   .mystery-ring {
-    width: 205px;
-    height: 205px;
+    width:
+      205px;
+
+    height:
+      205px;
   }
 
   .mystery-button {
-    width: 165px;
-    height: 165px;
+    width:
+      165px;
 
-    font-size: 16px;
-  }
-}
-/* =========================
-   BUTTON NAVIGATION
-========================= */
+    height:
+      165px;
 
-button {
-  font-family: inherit;
-}
-
-.logo-button {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-.nav-links button {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: #8e968e;
-  font-size: 13px;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.nav-links button:hover {
-  color: var(--g);
-}
-
-/* =========================
-   PAGE LAYOUT
-========================= */
-
-.page {
-  min-height: calc(100vh - 78px);
-  padding: 70px 5vw 110px;
-}
-
-.page-header {
-  max-width: 900px;
-  margin-bottom: 45px;
-}
-
-.page-header .section-heading {
-  margin-bottom: 20px;
-}
-
-.page-header > p {
-  max-width: 700px;
-  margin: 0;
-  color: #7d877d;
-  font-size: 15px;
-  line-height: 1.7;
-}
-
-.back-home {
-  margin-bottom: 55px;
-  padding: 10px 15px;
-  border: 1px solid #293029;
-  border-radius: 6px;
-  background: #080b08;
-  color: #899289;
-  font: 12px "JetBrains Mono", monospace;
-  cursor: pointer;
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.back-home:hover {
-  color: var(--g);
-  border-color: #465046;
-}
-
-/* =========================
-   GUIDE GRID
-========================= */
-
-.guide-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-  max-width: 1100px;
-}
-
-.guide-card {
-  min-height: 210px;
-  padding: 28px;
-  border: 1px solid #1c231c;
-  border-radius: 8px;
-  background: #080b08;
-}
-
-.guide-card > span {
-  color: #526052;
-  font: 600 11px "JetBrains Mono", monospace;
-}
-
-.guide-card h3 {
-  margin: 40px 0 12px;
-  font-size: 19px;
-  letter-spacing: -0.025em;
-}
-
-.guide-card p {
-  margin: 0;
-  color: #727c72;
-  font-size: 14px;
-  line-height: 1.65;
-}
-
-/* =========================
-   DOWNLOADS
-========================= */
-
-.downloads-box {
-  max-width: 1100px;
-}
-
-.download-item {
-  min-height: 170px;
-  padding: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 30px;
-  border: 1px solid #1c231c;
-  border-radius: 8px;
-  background: #080b08;
-}
-
-.download-number {
-  color: #526052;
-  font: 600 11px "JetBrains Mono", monospace;
-}
-
-.download-item h3 {
-  margin: 25px 0 10px;
-  font-size: 19px;
-}
-
-.download-item p {
-  margin: 0;
-  color: #727c72;
-  font-size: 14px;
-}
-
-.download-status {
-  padding: 8px 11px;
-  border: 1px solid #293029;
-  border-radius: 5px;
-  color: #596259;
-  font: 10px "JetBrains Mono", monospace;
-  white-space: nowrap;
-}
-
-/* =========================
-   RESPONSIVE PAGES
-========================= */
-
-@media (max-width: 900px) {
-  .guide-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .page {
-    min-height: calc(100vh - 65px);
-    padding: 55px 6vw 80px;
+    font-size:
+      16px;
   }
 
-  .back-home {
-    margin-bottom: 40px;
+  footer {
+    gap: 20px;
+    flex-wrap: wrap;
   }
-
-  .download-item {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .download-status {
-    white-space: normal;
-  }
-}
-/* =========================
-   SPA NAVIGATION BUTTONS
-========================= */
-
-.logo-button {
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-}
-
-nav button {
-  border: none;
-  background: transparent;
-  color: #9ca59d;
-  padding: 0;
-  margin: 0;
-
-  font:
-    500 12px
-    'JetBrains Mono';
-
-  cursor: pointer;
-
-  transition:
-    color 0.2s ease;
-}
-
-nav button:hover,
-nav button.active {
-  color: var(--g);
-}
-
-.cards button {
-  appearance: none;
-
-  width: 100%;
-
-  padding: 28px 22px;
-
-  border: none;
-  border-right: 1px solid var(--l);
-  border-bottom: 1px solid var(--l);
-
-  min-height: 240px;
-
-  background: transparent;
-
-  color: inherit;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  font: inherit;
-}
-
-.cards button:hover {
-  background: #091009;
-}
-
-.text-button {
-  appearance: none;
-
-  border: none;
-  background: transparent;
-
-  padding: 0;
-
-  color: #aab2aa;
-
-  font:
-    600 11px
-    'JetBrains Mono';
-
-  cursor: pointer;
-}
-
-.text-button:hover {
-  color: var(--g);
-}
-
-.footer-logo {
-  border: none;
-  background: transparent;
-
-  padding: 0;
-
-  color: var(--g);
-
-  font:
-    10px
-    'JetBrains Mono';
-
-  cursor: pointer;
-}
-
-.footer-logo:hover {
-  color: #fff;
-}
-
-/* HOME BUTTON ON INTERNAL PAGES */
-
-.back-home {
-  appearance: none;
-
-  border: 1px solid var(--l);
-
-  background: transparent;
-
-  color: #7f897f;
-
-  padding: 9px 12px;
-
-  margin-bottom: 30px;
-
-  font:
-    600 10px
-    'JetBrains Mono';
-
-  cursor: pointer;
-
-  transition:
-    color 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.back-home:hover {
-  color: var(--g);
-  border-color: var(--g);
 }
