@@ -14,22 +14,8 @@ const nav = [
   ['Downloads', '#/downloads']
 ];
 
-function navigate(path) {
-  if (location.hash === path) {
-    window.scrollTo({
-      top: 0,
-      behavior: 'instant'
-    });
-    return;
-  }
-
-  location.hash = path;
-}
-
 function useRoute() {
-  const [path, setPath] = useState(
-    location.hash || '#/'
-  );
+  const [path, setPath] = useState(location.hash || '#/');
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -41,16 +27,10 @@ function useRoute() {
       });
     };
 
-    window.addEventListener(
-      'hashchange',
-      handleHashChange
-    );
+    window.addEventListener('hashchange', handleHashChange);
 
     return () => {
-      window.removeEventListener(
-        'hashchange',
-        handleHashChange
-      );
+      window.removeEventListener('hashchange', handleHashChange);
     };
   }, []);
 
@@ -114,34 +94,18 @@ function Terminal({ rows }) {
     <div className="terminal">
 
       <div className="termbar">
-
-        <span>
-          DIAGNOSTIC.RUN
-        </span>
-
-        <span>
-          ● ● ●
-        </span>
-
+        <span>DIAGNOSTIC.RUN</span>
+        <span>● ● ●</span>
       </div>
 
       <div className="termbody">
 
         {rows.map((row, index) => (
-          <div
-            className="termrow"
-            key={index}
-          >
+          <div className="termrow" key={index}>
 
             <b>&gt;</b>
 
-            <span
-              className={
-                row[1] === 'OK'
-                  ? 'ok'
-                  : ''
-              }
-            >
+            <span className={row[1] === 'OK' ? 'ok' : ''}>
               {row[0]} {row[1]}
             </span>
 
@@ -172,9 +136,7 @@ function Home() {
           <h1>
             Know what's wrong.
             <br />
-            <em>
-              Fix what's slow.
-            </em>
+            <em>Fix what's slow.</em>
           </h1>
 
           <p>
@@ -212,29 +174,18 @@ function Home() {
 
       </section>
 
-      {/* SERVICES */}
-
       <section className="section">
 
         <div className="head">
-
-          <span>
-            01 / SERVICES
-          </span>
-
-          <span>
-            SELECT A MODULE
-          </span>
-
+          <span>01 / SERVICES</span>
+          <span>SELECT A MODULE</span>
         </div>
 
         <div className="cards">
 
           <a href="#/pc">
 
-            <span>
-              01
-            </span>
+            <span>01</span>
 
             <h2>
               PC Performance
@@ -253,9 +204,7 @@ function Home() {
 
           <a href="#/wifi">
 
-            <span>
-              02
-            </span>
+            <span>02</span>
 
             <h2>
               Wi-Fi
@@ -274,9 +223,7 @@ function Home() {
 
           <a href="#/downloads">
 
-            <span>
-              03
-            </span>
+            <span>03</span>
 
             <h2>
               Downloads
@@ -297,19 +244,13 @@ function Home() {
 
       </section>
 
-      {/* QUICK WINS */}
-
       <section className="quick">
 
         <div>
 
-          <span>
-            QUICK WINS
-          </span>
+          <span>QUICK WINS</span>
 
-          <strong>
-            03
-          </strong>
+          <strong>03</strong>
 
         </div>
 
@@ -476,6 +417,7 @@ function MysteryButton() {
       }, 2000);
 
     } catch (error) {
+
       console.error(
         'Mystery button error:',
         error
@@ -552,14 +494,9 @@ function PageHeader({
 ========================= */
 
 function Diagnostic() {
-  const [running, setRunning] =
-    useState(false);
-
-  const [done, setDone] =
-    useState(false);
-
-  const [results, setResults] =
-    useState([]);
+  const [running, setRunning] = useState(false);
+  const [done, setDone] = useState(false);
+  const [results, setResults] = useState([]);
 
   const run = async () => {
     setRunning(true);
@@ -575,10 +512,9 @@ function Diagnostic() {
       }
     ).catch(() => {});
 
-    const ms =
-      Math.round(
-        performance.now() - t
-      );
+    const ms = Math.round(
+      performance.now() - t
+    );
 
     const connection =
       navigator.connection ||
@@ -653,32 +589,14 @@ function Diagnostic() {
           rows={
             running
               ? [
-                  [
-                    'INITIALIZING...',
-                    ''
-                  ],
-                  [
-                    'CHECKING CONNECTION...',
-                    ''
-                  ],
-                  [
-                    'READING DEVICE INFO...',
-                    ''
-                  ]
+                  ['INITIALIZING...', ''],
+                  ['CHECKING CONNECTION...', ''],
+                  ['READING DEVICE INFO...', '']
                 ]
               : [
-                  [
-                    'READY',
-                    'OK'
-                  ],
-                  [
-                    'CLICK RUN TO START',
-                    ''
-                  ],
-                  [
-                    'NO SOFTWARE REQUIRED',
-                    ''
-                  ]
+                  ['READY', 'OK'],
+                  ['CLICK RUN TO START', ''],
+                  ['NO SOFTWARE REQUIRED', '']
                 ]
           }
         />
