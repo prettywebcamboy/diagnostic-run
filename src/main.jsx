@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./styles.css";
 
 function App() {
-  return <div className="message">you're strange</div>;
+  return <div className="message">https://discord.gg/CNVAJuMqDh</div>;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
