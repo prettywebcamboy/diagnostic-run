@@ -24,10 +24,17 @@ body {
   align-items: center;
   justify-content: center;
 
-  color: #ff4f00;
+  color: #87cefa;
   font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(4rem, 12vw, 12rem);
   font-weight: 900;
   line-height: 1;
   text-align: center;
+
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.message:hover {
+  text-decoration: underline;
 }
